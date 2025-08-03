@@ -1,0 +1,9 @@
+langchain
+langchain-core
+langchain-groq
+python-dotenv
+boto3
+kubernetes
+docker
+gitpython
+openai

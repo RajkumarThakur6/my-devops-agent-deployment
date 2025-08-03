@@ -1,0 +1,50 @@
+name: Full CI/CD Deployment Pipeline
+
+on:
+  push:
+    branches: ["main"] # Trigger the pipeline on every push to the main branch
+
+jobs:
+  # Job 1: Test the code (This is the original CI part)
+  test-code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run placeholder tests
+        run: echo "Tests would run here..."
+
+  # Job 2: Deploy Infrastructure with Terraform (This is the new "CD" part)
+  deploy-infra:
+    needs: test-code # This job will only run if the 'test-code' job succeeds
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1 # Change if your region is different
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./terraform # Run command in the terraform sub-directory
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        working-directory: ./terraform

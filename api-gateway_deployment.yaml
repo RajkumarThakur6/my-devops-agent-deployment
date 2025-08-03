@@ -1,0 +1,39 @@
+
+# Kubernetes Deployment configuration
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway-deployment
+  labels:
+    app: api-gateway
+spec:
+  replicas: 2 # Run two pods for high availability
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+      - name: api-gateway-container
+        image: api-gateway:v1
+        ports:
+        - containerPort: 5000 # The port the application listens on inside the container
+---
+# Kubernetes Service configuration to expose the deployment
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway-service
+spec:
+  # This selector ensures the service routes traffic to pods with the 'app: api-gateway' label
+  selector:
+    app: api-gateway
+  ports:
+    - protocol: TCP
+      port: 80 # The port the service is exposed on
+      targetPort: 5000 # The port to forward traffic to on the pods
+  # Exposes the service on an external IP, using the cloud provider's load balancer
+  type: LoadBalancer
